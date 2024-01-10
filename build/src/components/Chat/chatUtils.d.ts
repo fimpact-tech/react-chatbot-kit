@@ -3,8 +3,9 @@ export declare const uniqueId: () => number;
 export declare const botMessage: (message: IMessage) => boolean;
 export declare const userMessage: (message: IMessage) => boolean;
 export declare const customMessage: (message: IMessage, customMessages: any) => boolean;
-export declare const createChatMessage: (message: string, type: string) => {
+export declare const createChatMessage: (message: string, type: string, fileInput?: File[]) => {
     message: string;
+    attachments: File[];
     type: string;
     id: number;
 };
@@ -14,6 +15,7 @@ export declare const createChatBotMessage: (message: string, options: IMessageOp
     delay?: number;
     payload?: any;
     message: string;
+    attachments: File[];
     type: string;
     id: number;
 };
@@ -23,15 +25,17 @@ export declare const createCustomMessage: (message: string, type: string, option
     delay?: number;
     payload?: any;
     message: string;
+    attachments: File[];
     type: string;
     id: number;
 };
-export declare const createClientMessage: (message: string, options: IMessageOptions) => {
+export declare const createClientMessage: (message: string, options: IMessageOptions, fileInput?: File[]) => {
     loading?: boolean;
     widget?: string;
     delay?: number;
     payload?: any;
     message: string;
+    attachments: File[];
     type: string;
     id: number;
 };

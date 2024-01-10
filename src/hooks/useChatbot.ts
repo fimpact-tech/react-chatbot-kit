@@ -66,11 +66,15 @@ const useChatbot = ({
 
   const [state, setState] = React.useState({
     messages: [...config.initialMessages],
+    // ========= Custom =========
+    isInputDisabled: false,
+    // ========= Custom =========
     ...initialState,
   });
   const messagesRef = React.useRef(state.messages);
   const stateRef = React.useRef();
-  const messageContainerRef: React.MutableRefObject<HTMLDivElement> = React.useRef();
+  const messageContainerRef: React.MutableRefObject<HTMLDivElement> =
+    React.useRef();
 
   useEffect(() => {
     messagesRef.current = state.messages;

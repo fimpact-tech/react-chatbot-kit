@@ -31,9 +31,14 @@ export const customMessage = (message: IMessage, customMessages: any) => {
   return false;
 };
 
-export const createChatMessage = (message: string, type: string) => {
+export const createChatMessage = (
+  message: string,
+  type: string,
+  fileInput?: File[]
+) => {
   return {
     message: message,
+    attachments: fileInput,
     type: type,
     id: uniqueId(),
   };
@@ -60,9 +65,10 @@ export const createCustomMessage = (
 
 export const createClientMessage = (
   message: string,
-  options: IMessageOptions
+  options: IMessageOptions,
+  fileInput?: File[]
 ) => {
-  return { ...createChatMessage(message, 'user'), ...options };
+  return { ...createChatMessage(message, 'user', fileInput), ...options };
 };
 
 export const callIfExists = (func: any, ...args: any) => {

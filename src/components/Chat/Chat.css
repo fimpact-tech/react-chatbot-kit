@@ -54,7 +54,7 @@
   color: #585858;
 }
 
-.react-chatbot-kit-chat-btn-send {
+/* .react-chatbot-kit-chat-btn-send {
   background-color: #2898ec;
   width: 100px;
   border: none;
@@ -66,4 +66,15 @@
   fill: #fff;
   width: 15px;
   margin: 0 auto;
+} */
+
+/* Custom */
+.react-chatbot-kit-chat-btn-send-icon,
+.react-chatbot-kit-chat-btn-attachment-icon {
+  width: 36px;
+}
+
+.react-chatbot-kit-chat-btn-container {
+  display: flex;
+  justify-content: space-between;
 }

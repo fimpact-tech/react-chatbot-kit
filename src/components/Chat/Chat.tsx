@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, SetStateAction } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  SetStateAction,
+  ChangeEvent,
+} from 'react';
 import ConditionallyRender from 'react-conditionally-render';
 
 import UserChatMessage from '../UserChatMessage/UserChatMessage';
@@ -11,7 +17,10 @@ import {
   createChatMessage,
 } from './chatUtils';
 
-import ChatIcon from '../../assets/icons/paper-plane.svg';
+import SendIcon from '../../assets/icons/custom/send.svg';
+import DisabledSendIcon from '../../assets/icons/custom/send-gray.svg';
+import AttachmentIcon from '../../assets/icons/custom/attachment.svg';
+import RemoveIcon from '../../assets/icons/custom/remove.svg';
 
 import './Chat.css';
 import {
@@ -37,7 +46,7 @@ interface IChatProps {
   state: any;
   disableScrollToBottom: boolean;
   messageHistory: IMessage[] | string;
-  parse?: (message: string) => void;
+  parse?: (message: string, fileInput?: File[]) => void;
   actions?: object;
   messageContainerRef: React.MutableRefObject<HTMLDivElement>;
 }
@@ -61,9 +70,44 @@ const Chat = ({
   actions,
   messageContainerRef,
 }: IChatProps) => {
-  const { messages } = state;
+  const { messages, isInputDisabled } = state;
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [input, setInputValue] = useState('');
+  const [fileInput, setFileInputValue] = useState<File[] | null>(null);
+
+  const handleUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+
+    if (!files) {
+      return;
+    }
+
+    if (files.length > 5) {
+      throw Error('Please select up to 5 files.');
+    }
+
+    // TODO: Remove
+    console.log(files);
+
+    setFileInputValue((prevFiles: File[] | null) => {
+      if (prevFiles !== null) {
+        return [...prevFiles, ...Array.from(files)];
+      }
+      return Array.from(files);
+    });
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFileInputValue((prevFiles: File[]) => {
+      // 새로운 배열을 생성하고 인덱스에 해당하는 파일을 제외
+      const newFiles = [
+        ...prevFiles.slice(0, index),
+        ...prevFiles.slice(index + 1),
+      ];
+      return newFiles;
+    });
+  };
 
   const scrollIntoView = () => {
     setTimeout(() => {
@@ -159,6 +203,7 @@ const Chat = ({
       <>
         <UserChatMessage
           message={messageObject.message}
+          attachments={messageObject.attachments}
           key={messageObject.id}
           customComponents={customComponents}
         />
@@ -225,30 +270,38 @@ const Chat = ({
     e.preventDefault();
 
     if (validator && typeof validator === 'function') {
-      if (validator(input)) {
+      if (validator(input) || (fileInput && fileInput.length > 0)) {
         handleValidMessage();
         if (parse) {
-          return parse(input);
+          return parse(input, fileInput);
         }
-        messageParser.parse(input);
+        messageParser.parse(input, fileInput);
       }
     } else {
       handleValidMessage();
       if (parse) {
-        return parse(input);
+        return parse(input, fileInput);
       }
-      messageParser.parse(input);
+      messageParser.parse(input, fileInput);
     }
   };
 
   const handleValidMessage = () => {
-    setState((state: any) => ({
-      ...state,
-      messages: [...state.messages, createChatMessage(input, 'user')],
-    }));
+    setState((prevState: any) => {
+      const newState = {
+        ...prevState,
+        messages: [
+          ...state.messages,
+          createChatMessage(input, 'user', fileInput),
+        ],
+      };
 
-    scrollIntoView();
-    setInputValue('');
+      scrollIntoView();
+      setInputValue('');
+      setFileInputValue(null);
+
+      return newState;
+    });
   };
 
   const customButtonStyle = { backgroundColor: '' };
@@ -298,23 +351,93 @@ const Chat = ({
           <div style={{ paddingBottom: '15px' }} />
         </div>
 
-        <div className="react-chatbot-kit-chat-input-container">
+        <div
+          className={`react-chatbot-kit-chat-input-container ${
+            isInputDisabled ? 'is-disabled' : ''
+          }`}
+        >
           <form
-            className="react-chatbot-kit-chat-input-form"
+            className={`react-chatbot-kit-chat-input-form ${
+              isInputDisabled ? 'is-disabled' : ''
+            }`}
             onSubmit={handleSubmit}
           >
-            <input
-              className="react-chatbot-kit-chat-input"
-              placeholder={placeholder}
-              value={input}
-              onChange={(e) => setInputValue(e.target.value)}
-            />
-            <button
-              className="react-chatbot-kit-chat-btn-send"
-              style={customButtonStyle}
-            >
-              <ChatIcon className="react-chatbot-kit-chat-btn-send-icon" />
-            </button>
+            {fileInput && fileInput.length > 0 ? (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {fileInput.map((file, index) => (
+                  <div
+                    key={`file-div-${index}`}
+                    style={{ position: 'relative', marginRight: '10px' }}
+                  >
+                    <img
+                      key={`file-image-${index}`}
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      style={{
+                        maxHeight: '100px',
+                        maxWidth: '100px',
+                        position: 'relative',
+                      }}
+                    />
+                    <button
+                      key={`file-remove-btn-${index}`}
+                      style={{
+                        position: 'absolute',
+                        top: '-10px',
+                        right: '-10px',
+                        background: 'none',
+                        border: 'none',
+                      }}
+                      type="button"
+                      onClick={() => handleRemoveFile(index)}
+                    >
+                      <RemoveIcon style={{ width: '24px' }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <textarea
+                className={`react-chatbot-kit-chat-input ${
+                  isInputDisabled ? 'is-disabled' : ''
+                }`}
+                placeholder={placeholder}
+                value={input}
+                onChange={(e) => setInputValue(e.target.value)}
+                disabled={isInputDisabled}
+              />
+            )}
+
+            <div className="react-chatbot-kit-chat-btn-container">
+              <button
+                type="button"
+                disabled={isInputDisabled}
+                onClick={() =>
+                  fileInputRef.current && fileInputRef.current.click()
+                }
+              >
+                <input
+                  type="file"
+                  accept=".png,.jpg,.jpeg"
+                  multiple
+                  ref={fileInputRef}
+                  onChange={handleUpload}
+                  className="hidden"
+                />
+                <AttachmentIcon className="react-chatbot-kit-chat-btn-attachment-icon" />
+              </button>
+              <button
+                className="react-chatbot-kit-chat-btn-send"
+                style={customButtonStyle}
+                disabled={isInputDisabled}
+              >
+                {isInputDisabled ? (
+                  <DisabledSendIcon className="react-chatbot-kit-chat-btn-send-icon" />
+                ) : (
+                  <SendIcon className="react-chatbot-kit-chat-btn-send-icon" />
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

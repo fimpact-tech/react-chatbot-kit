@@ -2,6 +2,7 @@ export interface IBaseMessage {
     message: string;
     type: string;
     id: number;
+    attachments?: File[];
 }
 export interface IMessageOptions {
     loading?: boolean;
