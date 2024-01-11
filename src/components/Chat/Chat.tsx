@@ -70,7 +70,7 @@ const Chat = ({
   actions,
   messageContainerRef,
 }: IChatProps) => {
-  const { messages, isInputDisabled } = state;
+  const { messages, isInputDisabled, isFileInputDisabled } = state;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [input, setInputValue] = useState('');
@@ -84,11 +84,15 @@ const Chat = ({
     }
 
     if (files.length > 5) {
-      throw Error('Please select up to 5 files.');
+      setState((prevState: any) => ({
+        ...prevState,
+        messages: [
+          ...state.messages,
+          createChatMessage('You can upload up to 5 files.', 'bot'),
+        ],
+      }));
+      return;
     }
-
-    // TODO: Remove
-    console.log(files);
 
     setFileInputValue((prevFiles: File[] | null) => {
       if (prevFiles !== null) {
@@ -100,7 +104,6 @@ const Chat = ({
 
   const handleRemoveFile = (index: number) => {
     setFileInputValue((prevFiles: File[]) => {
-      // 새로운 배열을 생성하고 인덱스에 해당하는 파일을 제외
       const newFiles = [
         ...prevFiles.slice(0, index),
         ...prevFiles.slice(index + 1),
@@ -404,6 +407,12 @@ const Chat = ({
                 placeholder={placeholder}
                 value={input}
                 onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey && 'form' in e.target) {
+                    handleSubmit(e);
+                    e.preventDefault();
+                  }
+                }}
                 disabled={isInputDisabled}
               />
             )}
@@ -411,7 +420,7 @@ const Chat = ({
             <div className="react-chatbot-kit-chat-btn-container">
               <button
                 type="button"
-                disabled={isInputDisabled}
+                disabled={isFileInputDisabled}
                 onClick={() =>
                   fileInputRef.current && fileInputRef.current.click()
                 }
@@ -423,6 +432,7 @@ const Chat = ({
                   ref={fileInputRef}
                   onChange={handleUpload}
                   className="hidden"
+                  disabled={isFileInputDisabled}
                 />
                 <AttachmentIcon className="react-chatbot-kit-chat-btn-attachment-icon" />
               </button>

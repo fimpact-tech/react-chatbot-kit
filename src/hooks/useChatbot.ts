@@ -68,6 +68,7 @@ const useChatbot = ({
     messages: [...config.initialMessages],
     // ========= Custom =========
     isInputDisabled: false,
+    isFileInputDisabled: false,
     // ========= Custom =========
     ...initialState,
   });
