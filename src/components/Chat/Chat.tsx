@@ -17,11 +17,6 @@ import {
   createChatMessage,
 } from './chatUtils';
 
-import SendIcon from '../../assets/icons/custom/send.svg';
-import DisabledSendIcon from '../../assets/icons/custom/send-gray.svg';
-import AttachmentIcon from '../../assets/icons/custom/attachment.svg';
-import RemoveIcon from '../../assets/icons/custom/remove.svg';
-
 import './Chat.css';
 import {
   ICustomComponents,
@@ -30,6 +25,7 @@ import {
 } from '../../interfaces/IConfig';
 import { IMessage } from '../../interfaces/IMessages';
 import { string } from 'prop-types';
+import ChatInputContainer from '../ChatInputContainer/ChatInputContainer';
 
 interface IChatProps {
   setState: React.Dispatch<SetStateAction<any>>;
@@ -70,47 +66,11 @@ const Chat = ({
   actions,
   messageContainerRef,
 }: IChatProps) => {
-  const { messages, isInputDisabled, isFileInputDisabled } = state;
+  const { messages } = state;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [input, setInputValue] = useState('');
   const [fileInput, setFileInputValue] = useState<File[] | null>(null);
-
-  const handleUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-
-    if (!files) {
-      return;
-    }
-
-    if (files.length > 5) {
-      setState((prevState: any) => ({
-        ...prevState,
-        messages: [
-          ...state.messages,
-          createChatMessage('You can upload up to 5 files.', 'bot'),
-        ],
-      }));
-      return;
-    }
-
-    setFileInputValue((prevFiles: File[] | null) => {
-      if (prevFiles !== null) {
-        return [...prevFiles, ...Array.from(files)];
-      }
-      return Array.from(files);
-    });
-  };
-
-  const handleRemoveFile = (index: number) => {
-    setFileInputValue((prevFiles: File[]) => {
-      const newFiles = [
-        ...prevFiles.slice(0, index),
-        ...prevFiles.slice(index + 1),
-      ];
-      return newFiles;
-    });
-  };
 
   const scrollIntoView = () => {
     setTimeout(() => {
@@ -354,7 +314,20 @@ const Chat = ({
           <div style={{ paddingBottom: '15px' }} />
         </div>
 
-        <div
+        <ChatInputContainer
+          fileInputRef={fileInputRef}
+          fileInput={fileInput}
+          setFileInputValue={setFileInputValue}
+          input={input}
+          setInputValue={setInputValue}
+          placeholder={placeholder}
+          handleSubmit={handleSubmit}
+          state={state}
+          customButtonStyle={customButtonStyle}
+          setState={setState}
+        />
+      </div>
+      {/* <div
           className={`react-chatbot-kit-chat-input-container ${
             isInputDisabled ? 'is-disabled' : ''
           }`}
@@ -454,6 +427,7 @@ const Chat = ({
           </form>
         </div>
       </div>
+       */}
     </div>
   );
 };

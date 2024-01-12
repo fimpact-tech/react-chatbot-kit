@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ConditionallyRender from 'react-conditionally-render';
 
 import { callIfExists } from '../Chat/chatUtils';
-
-import UserIcon from '../../assets/icons/user-alt.svg';
-
-import './UserChatMessage.css';
 import { ICustomComponents } from '../../interfaces/IConfig';
+import UserIcon from '../../assets/icons/user-alt.svg';
+import './UserChatMessage.css';
 
 interface IUserChatMessageProps {
   message: string;
@@ -19,6 +17,22 @@ const UserChatMessage = ({
   attachments,
   customComponents,
 }: IUserChatMessageProps) => {
+  const attachmentsUrls = useRef<string[]>([]);
+
+  useEffect(() => {
+    // attachments가 업데이트될 때마다 URL 갱신
+    if (attachments && attachments.length > 0) {
+      attachmentsUrls.current = attachments.map((attachment) =>
+        URL.createObjectURL(attachment)
+      );
+    }
+
+    // 컴포넌트가 언마운트될 때 생성된 URL 해제
+    return () => {
+      attachmentsUrls.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [attachments]);
+
   const RenderedMessage = () => {
     if (!!customComponents.userChatMessage) {
       return callIfExists(customComponents.userChatMessage, {
@@ -36,18 +50,19 @@ const UserChatMessage = ({
               alignItems: 'center',
             }}
           >
-            {attachments.map((attachment, index) => (
+            {attachmentsUrls.current.map((url, index) => (
               <img
                 key={`attachment-${index}`}
-                src={URL.createObjectURL(attachment)}
-                alt={attachment.name}
+                src={url}
+                alt={attachments[index].name}
                 style={{
                   maxWidth: '150px',
-                  marginTop: '10px',
+                  marginTop: index === 0 ? '0' : '10px',
                 }}
               />
             ))}
           </div>
+          <div className="react-chatbot-kit-user-chat-message-arrow"></div>
         </div>
       );
     }

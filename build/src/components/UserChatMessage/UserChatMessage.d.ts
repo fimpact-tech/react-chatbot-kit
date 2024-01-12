@@ -1,5 +1,5 @@
-import './UserChatMessage.css';
 import { ICustomComponents } from '../../interfaces/IConfig';
+import './UserChatMessage.css';
 interface IUserChatMessageProps {
     message: string;
     attachments?: File[];
