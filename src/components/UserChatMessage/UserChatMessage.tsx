@@ -42,7 +42,7 @@ const UserChatMessage = ({
                 src={URL.createObjectURL(attachment)}
                 alt={attachment.name}
                 style={{
-                  width: '200px',
+                  maxWidth: '150px',
                   marginTop: '10px',
                 }}
               />

@@ -366,7 +366,16 @@ const Chat = ({
             onSubmit={handleSubmit}
           >
             {fileInput && fileInput.length > 0 ? (
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'start',
+                  height: '65px',
+                  overflowX: 'auto',
+                  paddingTop: '8px',
+                  // whiteSpace: 'nowrap',
+                }}
+              >
                 {fileInput.map((file, index) => (
                   <div
                     key={`file-div-${index}`}
@@ -377,8 +386,8 @@ const Chat = ({
                       src={URL.createObjectURL(file)}
                       alt={file.name}
                       style={{
-                        maxHeight: '100px',
-                        maxWidth: '100px',
+                        maxWidth: '60px',
+                        maxHeight: '60px',
                         position: 'relative',
                       }}
                     />
