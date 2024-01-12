@@ -416,12 +416,6 @@ const Chat = ({
                 placeholder={placeholder}
                 value={input}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey && 'form' in e.target) {
-                    handleSubmit(e);
-                    e.preventDefault();
-                  }
-                }}
                 disabled={isInputDisabled}
               />
             )}
