@@ -96,7 +96,7 @@ const ChatInputContainer: React.FC<ChatInputContainerProps> = ({
                 key={`file-div-${index}`}
                 style={{
                   position: 'relative',
-                  marginRight: index === 0 ? '0' : '10px',
+                  marginLeft: index === 0 ? '0' : '10px',
                 }}
               >
                 <img
